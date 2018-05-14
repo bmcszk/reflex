@@ -9,6 +9,7 @@ import java.util.*
 @Component
 class PingActionHandler : AbstractActionHandler<PingPongState, PingAction>() {
     override fun handleAction(store: Store<PingPongState>, action: PingAction) {
+        log.debug("handleAction $action")
         store.dispatch(PongAction(
                 AbstractStoreAction.BACKEND_SOURCE,
                 Date()))

@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import javax.annotation.PostConstruct
 
 abstract class AbstractActionHandler<TState : State, TAction : StoreAction<TState>> {
-    private val log = LogFactory.getLog(this.javaClass)
+    protected val log = LogFactory.getLog(this.javaClass)!!
 
     private val actionTypeToken = object : TypeToken<TAction>(javaClass) {
 
