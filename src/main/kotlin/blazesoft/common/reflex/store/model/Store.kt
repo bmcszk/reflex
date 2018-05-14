@@ -7,13 +7,10 @@ import org.apache.commons.logging.LogFactory
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.core.publisher.ReplayProcessor
-
-import java.lang.reflect.Type
-import java.util.UUID
+import java.util.*
+import kotlin.reflect.KClass
 
 class Store<TState : State> {
-    private val log = LogFactory.getLog(this.javaClass)
-
     private val actions = ReplayProcessor.create<StoreAction<TState>>()
     private val actionFluxSink = actions.sink()
     var state = Mono.empty<TState>()
@@ -32,14 +29,10 @@ class Store<TState : State> {
     }
 
     @JsonIgnore
-    fun <T : StoreAction<TState>> getActionsByType(type: Type): Flux<T> {
-        return getActionsByType(type as Class<T>)
-    }
-
-    @JsonIgnore
-    fun <T : StoreAction<TState>> getActionsByType(type: Class<T>): Flux<T> {
-        return actions
-                .filter { a -> type.isInstance(a) } as Flux<T>
+    fun <TAction : StoreAction<TState>> getActionsByType(type : KClass<TAction>): Flux<TAction> {
+        return getActions()
+                .filter { type.isInstance(it) }
+                .map { it as TAction }
     }
 
     @JsonIgnore
@@ -49,7 +42,7 @@ class Store<TState : State> {
     }
 
     companion object {
-
+        private val log = LogFactory.getLog(Store.javaClass)
     }
 
 }

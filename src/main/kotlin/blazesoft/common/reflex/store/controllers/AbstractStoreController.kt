@@ -4,13 +4,16 @@ import blazesoft.common.reflex.store.model.Store
 import blazesoft.common.reflex.store.model.actions.AbstractStoreAction
 import blazesoft.common.reflex.store.model.actions.StoreAction
 import blazesoft.common.reflex.store.model.state.State
-import blazesoft.common.reflex.store.services.StoreService
+import blazesoft.common.reflex.store.services.AbstractStoreService
 import org.apache.commons.logging.LogFactory
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 
-abstract class AbstractStoreController<TState : State>(private val storeService: StoreService<TState>) {
+abstract class AbstractStoreController<TState : State>(private val storeService: AbstractStoreService<TState>) {
 
     @GetMapping("")
     fun getInitialStore(): Mono<Store<TState>> {
