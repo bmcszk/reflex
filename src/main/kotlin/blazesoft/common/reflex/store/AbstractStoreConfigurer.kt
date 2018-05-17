@@ -9,12 +9,13 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.config.BeanDefinition
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider
 import org.springframework.core.type.filter.AnnotationTypeFilter
+import org.springframework.util.ClassUtils
 import javax.annotation.PostConstruct
 
 abstract class AbstractStoreConfigurer(private val scannedPackage: String) {
 
     @Autowired
-    private val mapper: ObjectMapper? = null
+    private lateinit var mapper: ObjectMapper
 
     @PostConstruct
     private fun init() {
@@ -23,27 +24,18 @@ abstract class AbstractStoreConfigurer(private val scannedPackage: String) {
         scanner.addIncludeFilter(AnnotationTypeFilter(StoreAction::class.java))
 
         val subtypes = scanner.findCandidateComponents(scannedPackage)
-                .map { bd -> NamedType(getClassForName(bd.beanClassName), getStoreActionType(bd)) }
+                .filter { it.beanClassName != null }
+                .map {  NamedType(ClassUtils.forName(it.beanClassName!!, ClassUtils.getDefaultClassLoader()), getStoreActionType(it)) }
                 .toTypedArray()
 
-        mapper!!.registerSubtypes(*subtypes)
+        mapper.registerSubtypes(*subtypes)
 
         if (log.isDebugEnabled) {
             val subtypeStrings = subtypes
                     .map { s -> s.name }
-                    .joinToString { ", " }
-            log.debug(String.format("Registered store action subtypes: [%s]", subtypeStrings))
+                    .joinToString(", ")
+            log.debug("Registered store action subtypes: [$subtypeStrings]")
         }
-    }
-
-    private fun getClassForName(name: String?): Class<*> {
-        try {
-            return Class.forName(name)
-        } catch (e: Exception) {
-            log.error(e)
-            throw RuntimeException(e)
-        }
-
     }
 
     private fun getStoreActionType(beanDefinition: BeanDefinition): String? {
