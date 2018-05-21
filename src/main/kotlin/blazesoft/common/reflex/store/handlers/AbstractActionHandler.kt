@@ -1,6 +1,6 @@
 package blazesoft.common.reflex.store.handlers
 
-import blazesoft.common.reflex.store.model.Store
+import blazesoft.common.reflex.store.Store
 import blazesoft.common.reflex.store.model.actions.StoreAction
 import blazesoft.common.reflex.store.model.state.State
 import blazesoft.common.reflex.store.services.AbstractStoreService
@@ -15,7 +15,7 @@ abstract class AbstractActionHandler<TState : State, TAction : StoreAction<TStat
     private val actionTypeToken = object : TypeToken<TAction>(javaClass) {
 
     }
-    private val tAction = actionTypeToken.type as Class<TAction>
+    private val tAction = (actionTypeToken.type as Class<TAction>).kotlin
 
     @Autowired
     private lateinit var storeService: AbstractStoreService<TState>
@@ -23,14 +23,14 @@ abstract class AbstractActionHandler<TState : State, TAction : StoreAction<TStat
     @PostConstruct
     private fun init() {
         log.debug("init")
-        storeService.getStoreFlux()
-                .subscribe { s -> handleStore(s) }
+        storeService.storeFlux
+                .subscribe { handleStore(it) }
     }
 
     private fun handleStore(store: Store<TState>) {
         log.debug("handleStore")
-        store.getActionsByType(tAction.kotlin)
-                .subscribe { a -> handleAction(store, a as TAction) }
+        store.getInnerActionsByType(tAction)
+                .subscribe { handleAction(store, it as TAction) }
     }
 
     protected abstract fun handleAction(store: Store<TState>, action: TAction)

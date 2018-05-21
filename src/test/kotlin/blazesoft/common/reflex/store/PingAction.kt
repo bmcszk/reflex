@@ -7,7 +7,7 @@ import java.util.*
 
 @StoreAction("PING")
 data class PingAction(override val source: String, override val date: Date) : AbstractStoreAction<PingPongState>(source, date) {
-    override fun reduce(state: Mono<PingPongState>): Mono<PingPongState> {
-        return Mono.just(PingPongState(null, "ping"))
+    override fun reduce(state: PingPongState): Mono<PingPongState> {
+        return Mono.just(PingPongState( "ping"))
     }
 }

@@ -31,9 +31,7 @@ abstract class AbstractStoreConfigurer(private val scannedPackage: String) {
         mapper.registerSubtypes(*subtypes)
 
         if (log.isDebugEnabled) {
-            val subtypeStrings = subtypes
-                    .map { s -> s.name }
-                    .joinToString(", ")
+            val subtypeStrings = subtypes.joinToString(", ") { it.name }
             log.debug("Registered store action subtypes: [$subtypeStrings]")
         }
     }

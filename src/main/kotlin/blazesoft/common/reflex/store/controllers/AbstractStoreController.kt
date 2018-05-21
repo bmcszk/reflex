@@ -1,6 +1,6 @@
 package blazesoft.common.reflex.store.controllers
 
-import blazesoft.common.reflex.store.model.Store
+import blazesoft.common.reflex.store.exceptions.BadActionException
 import blazesoft.common.reflex.store.model.actions.AbstractStoreAction
 import blazesoft.common.reflex.store.model.actions.StoreAction
 import blazesoft.common.reflex.store.model.state.State
@@ -15,30 +15,40 @@ import reactor.core.publisher.Mono
 
 abstract class AbstractStoreController<TState : State>(private val storeService: AbstractStoreService<TState>) {
 
-    @GetMapping("")
-    fun getInitialStore(): Mono<Store<TState>> {
-        log.debug("getInitialStore")
-        return Mono.just(storeService.createStore())
+
+    @GetMapping("/state")
+    fun getInitialState(): Mono<TState> {
+        log.debug("getInitialState")
+        return storeService.initialStore
+                .flatMap{ it.state }
     }
 
-    @GetMapping("/{storeId}")
-    fun getStore(@PathVariable storeId: String): Mono<Store<TState>> {
-        log.debug("getStore")
-        return Mono.justOrEmpty(storeService.getStore(storeId))
+    @GetMapping("/{stateId}/state")
+    fun getState(@PathVariable stateId: String): Mono<TState> {
+        log.debug("getState")
+        return storeService.getStore(stateId)
+                .flatMap { it.state }
     }
 
-    @GetMapping("/{storeId}/actions")
-    fun getStoreActions(@PathVariable storeId: String): Flux<StoreAction<TState>>  {
+    @GetMapping("/{stateId}/actions")
+    fun getStoreActions(@PathVariable stateId: String): Flux<StoreAction<TState>>  {
         log.debug("getStoreActions")
-        return storeService.getStore(storeId)!!.getActionsBySource(AbstractStoreAction.BACKEND_SOURCE)
+        return storeService.getStore(stateId)
+                .flatMapMany { s -> s.getOuterActionsBySource(AbstractStoreAction.BACKEND_SOURCE) }
     }
 
-    @PostMapping("/{storeId}/actions")
-    fun dispatch(@PathVariable storeId: String, @RequestBody action: AbstractStoreAction<TState>) {
+
+
+    @PostMapping("/{stateId}/actions")
+    fun dispatch(@PathVariable stateId: String,
+                 @RequestBody action: AbstractStoreAction<TState>) {
         log.debug("dispatch $action")
-        if (action.source != AbstractStoreAction.BACKEND_SOURCE) {
-            storeService.getStore(storeId)!!.dispatch(action)
+        if (action.source == AbstractStoreAction.BACKEND_SOURCE) {
+            throw BadActionException(action, "Cannot process backend actions")
         }
+
+        storeService.getStore(stateId)
+                .subscribe { s -> s.dispatch(action) }
     }
 
     companion object {

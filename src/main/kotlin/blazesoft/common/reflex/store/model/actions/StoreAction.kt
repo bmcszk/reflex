@@ -7,5 +7,5 @@ import java.util.*
 interface StoreAction<TState : State> {
     val source: String
     val date: Date
-    fun reduce(state: Mono<TState>): Mono<TState>
+    fun reduce(state: TState): Mono<TState>
 }
