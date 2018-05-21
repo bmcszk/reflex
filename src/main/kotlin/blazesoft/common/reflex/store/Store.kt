@@ -14,8 +14,8 @@ constructor (
         private val repo: ReactiveCrudRepository<StateWrapper<TState>, String>,
         stateWrapper: StateWrapper<TState>) {
 
+    val stateId: String? = stateWrapper.id
     private var stateWrapperPublisher: Mono<StateWrapper<TState>> = Mono.just(stateWrapper)
-    private val stateId: String? = stateWrapper.id
     private val actionPipes = Pipes<StoreAction<TState>>()
     private val innerActionPipe = actionPipes.registerPipe()
     private val outerActionPipe = actionPipes.registerPipe()
@@ -35,13 +35,13 @@ constructor (
 
     fun <T : StoreAction<TState>> getInnerActionsByType(type: KClass<T>): Flux<T> {
         return innerActionPipe.flux
-                .filter { a -> type.isInstance(a) }
-                .map { a -> a as T }
+                .filter { type.isInstance(it) }
+                .map { it as T }
     }
 
     fun getOuterActionsBySource(source: String): Flux<StoreAction<TState>> {
         return outerActionPipe.flux
-                .filter{ a -> a.source == source }
+                .filter{ it.source == source }
     }
 
     companion object {

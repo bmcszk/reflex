@@ -15,12 +15,11 @@ import reactor.core.publisher.Mono
 
 abstract class AbstractStoreController<TState : State>(private val storeService: AbstractStoreService<TState>) {
 
-
-    @GetMapping("/state")
-    fun getInitialState(): Mono<TState> {
+    @GetMapping("/stateId")
+    fun getInitialState(): Mono<String?> {
         log.debug("getInitialState")
         return storeService.initialStore
-                .flatMap{ it.state }
+                .map{ it.stateId }
     }
 
     @GetMapping("/{stateId}/state")
