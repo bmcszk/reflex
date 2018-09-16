@@ -4,7 +4,7 @@ import blazesoft.common.reflex.store.services.AbstractStoreService
 import org.springframework.stereotype.Service
 
 @Service
-class PingPongService(stateRepo: PingPongRepo) : AbstractStoreService<PingPongState>(stateRepo) {
+class PingPongService: AbstractStoreService<PingPongState>() {
     override fun createInitialState(): PingPongState {
         return PingPongState("initial")
     }

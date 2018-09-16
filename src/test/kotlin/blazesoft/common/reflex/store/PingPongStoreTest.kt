@@ -1,6 +1,5 @@
 package blazesoft.common.reflex.store
 
-import blazesoft.common.reflex.store.model.actions.AbstractStoreAction
 import org.assertj.core.api.Assertions
 import org.junit.Before
 import org.junit.Test
@@ -15,7 +14,7 @@ import java.util.*
 
 @RunWith(SpringJUnit4ClassRunner::class)
 @SpringBootTest
-class StoreTest {
+class PingPongStoreTest {
 
     private lateinit var store: Store<PingPongState>
 
@@ -24,8 +23,7 @@ class StoreTest {
 
     @Before
     fun setUp() {
-        store = service.initialStore
-                .block()!!
+        store = service.getStore("")
     }
 
 
@@ -33,14 +31,14 @@ class StoreTest {
     fun shouldPingPong() {
         Mono.just(store)
                 .delayElement(Duration.ofSeconds(3))
-                .subscribe { it.dispatch(PingAction("front", Date())) }
+                .subscribe { it.dispatch(PingAction(arrayOf("public"), Date())) }
 
-        StepVerifier.create(store.getOuterActionsBySource(AbstractStoreAction.BACKEND_SOURCE))
-                .expectNextMatches({ it is PongAction })
+        StepVerifier.create(store.getActions("server"))
+                .expectNextMatches { it is PongAction }
                 .thenCancel()
                 .verify()
 
-        Assertions.assertThat(store.state.block()!!.status).isEqualTo("pong")
+        Assertions.assertThat(store.state.status).isEqualTo("pong")
     }
 
     @Test
@@ -48,17 +46,17 @@ class StoreTest {
         Mono.just(store)
                 .delayElement(Duration.ofSeconds(3))
                 .subscribe {
-            it.dispatch(PingAction("front", Date()))
-            it.dispatch(PingAction("front", Date()))
+            it.dispatch(PingAction(arrayOf("public"), Date()))
+            it.dispatch(PingAction(arrayOf("public"), Date()))
         }
 
-        StepVerifier.create(store.getInnerActionsByType(PongAction::class))
-                .expectNextMatches({ it is PongAction })
-                .expectNextMatches({ it is PongAction })
+        StepVerifier.create(store.getActionsByType(PongAction::class, "server"))
+                .expectNextMatches { it is PongAction }
+                .expectNextMatches { it is PongAction }
                 .thenCancel()
                 .verify()
 
-        Assertions.assertThat(store.state.block()!!.status).isEqualTo("pong")
+        Assertions.assertThat(store.state.status).isEqualTo("pong")
     }
 
 }

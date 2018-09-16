@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired
 import javax.annotation.PostConstruct
 
 abstract class AbstractActionHandler<TState : State, TAction : StoreAction<TState>> {
+    abstract val scope: String
+
     protected val log = LogFactory.getLog(this.javaClass)!!
 
     private val actionTypeToken = object : TypeToken<TAction>(javaClass) {
@@ -27,9 +29,10 @@ abstract class AbstractActionHandler<TState : State, TAction : StoreAction<TStat
                 .subscribe { handleStore(it) }
     }
 
+
     private fun handleStore(store: Store<TState>) {
         log.debug("handleStore")
-        store.getInnerActionsByType(tAction)
+        store.getActionsByType(tAction, scope)
                 .subscribe { handleAction(store, it as TAction) }
     }
 
