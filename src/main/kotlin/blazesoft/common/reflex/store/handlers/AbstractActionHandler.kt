@@ -1,8 +1,8 @@
 package blazesoft.common.reflex.store.handlers
 
+import blazesoft.common.reflex.store.State
 import blazesoft.common.reflex.store.Store
-import blazesoft.common.reflex.store.model.actions.StoreAction
-import blazesoft.common.reflex.store.model.state.State
+import blazesoft.common.reflex.store.actions.StoreAction
 import blazesoft.common.reflex.store.services.AbstractStoreService
 import com.google.common.reflect.TypeToken
 import org.apache.commons.logging.LogFactory

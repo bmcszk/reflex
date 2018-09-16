@@ -1,10 +1,11 @@
 package blazesoft.common.reflex.store.controllers
 
-import blazesoft.common.reflex.store.model.actions.AbstractStoreAction
-import blazesoft.common.reflex.store.model.actions.StoreAction
-import blazesoft.common.reflex.store.model.state.State
+import blazesoft.common.reflex.store.State
+import blazesoft.common.reflex.store.actions.AbstractStoreAction
+import blazesoft.common.reflex.store.actions.StoreAction
 import blazesoft.common.reflex.store.services.AbstractStoreService
 import org.apache.commons.logging.LogFactory
+import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -22,7 +23,7 @@ abstract class AbstractStoreController<TState : State>(private val storeService:
                 .map { it.state }
     }
 
-    @GetMapping("/{id}/actions")
+    @GetMapping("/{id}/actions", produces = [MediaType.TEXT_EVENT_STREAM_VALUE])
     fun getStoreActions(@PathVariable id: String, scope: String): Flux<StoreAction<TState>>  {
         log.debug("getStoreActions")
         return Mono.justOrEmpty(storeService.getStore(id))

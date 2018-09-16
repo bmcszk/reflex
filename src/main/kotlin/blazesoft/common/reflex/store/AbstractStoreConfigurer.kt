@@ -23,7 +23,11 @@ abstract class AbstractStoreConfigurer(private val scannedPackage: String) {
 
         scanner.addIncludeFilter(AnnotationTypeFilter(StoreAction::class.java))
 
-        val subtypes = scanner.findCandidateComponents(scannedPackage)
+        val subtypeSet = scanner.findCandidateComponents(scannedPackage)
+        subtypeSet.addAll(
+                scanner.findCandidateComponents(AbstractStoreConfigurer::class.java.packageName))
+
+        val subtypes = subtypeSet
                 .filter { it.beanClassName != null }
                 .map {  NamedType(ClassUtils.forName(it.beanClassName!!, ClassUtils.getDefaultClassLoader()), getStoreActionType(it)) }
                 .toTypedArray()

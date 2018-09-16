@@ -1,6 +1,6 @@
-package blazesoft.common.reflex.store.model.actions
+package blazesoft.common.reflex.store.actions
 
-import blazesoft.common.reflex.store.model.state.State
+import blazesoft.common.reflex.store.State
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import java.util.*
 

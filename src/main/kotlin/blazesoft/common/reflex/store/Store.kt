@@ -1,7 +1,6 @@
 package blazesoft.common.reflex.store
 
-import blazesoft.common.reflex.store.model.actions.StoreAction
-import blazesoft.common.reflex.store.model.state.State
+import blazesoft.common.reflex.store.actions.StoreAction
 import org.apache.commons.logging.LogFactory
 import reactor.core.publisher.Flux
 import kotlin.reflect.KClass

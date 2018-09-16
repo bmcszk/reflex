@@ -1,8 +1,8 @@
 package blazesoft.common.reflex.store.services
 
 import blazesoft.common.reflex.store.Pipe
+import blazesoft.common.reflex.store.State
 import blazesoft.common.reflex.store.Store
-import blazesoft.common.reflex.store.model.state.State
 import org.apache.commons.logging.LogFactory
 import reactor.core.publisher.Flux
 import java.util.concurrent.ConcurrentHashMap
