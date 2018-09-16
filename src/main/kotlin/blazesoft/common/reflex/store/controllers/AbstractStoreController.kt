@@ -5,32 +5,23 @@ import blazesoft.common.reflex.store.actions.AbstractStoreAction
 import blazesoft.common.reflex.store.actions.StoreAction
 import blazesoft.common.reflex.store.services.AbstractStoreService
 import org.apache.commons.logging.LogFactory
-import org.springframework.http.MediaType
-import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 
-abstract class AbstractStoreController<TState : State>(private val storeService: AbstractStoreService<TState>) {
+abstract class AbstractStoreController<TState : State>(
+        private val storeService: AbstractStoreService<TState>
+) {
 
-
-    @GetMapping("/{id}/state")
-    fun getState(@PathVariable id: String): Mono<TState> {
-        log.debug("getState")
-        return Mono.justOrEmpty(storeService.getStore(id))
-                .map { it.state }
-    }
-
-    @GetMapping("/{id}/actions", produces = [MediaType.TEXT_EVENT_STREAM_VALUE])
-    fun getStoreActions(@PathVariable id: String, scope: String): Flux<StoreAction<TState>>  {
+    //@GetMapping("/{id}/actions", produces = [MediaType.TEXT_EVENT_STREAM_VALUE])
+    open fun getStoreActions(@PathVariable id: String, scope: String): Flux<StoreAction<TState>>  {
         log.debug("getStoreActions")
-        return Mono.justOrEmpty(storeService.getStore(id))
-                .flatMapMany { s -> s.getActions(scope) }
+
+        return storeService.getStore(id)
+                .getActions(scope)
     }
-
-
 
     @PostMapping("/{id}/actions")
     fun dispatch(@PathVariable id: String,
